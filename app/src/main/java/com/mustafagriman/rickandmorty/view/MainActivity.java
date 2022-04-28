@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity
                             activePageIndex++;
                             getDataFromAPI(activePageIndex);
                         }
-                        if(characterModels.size() == 0 && pageInfo.next == null)
+                        else if(characterModels.size() == 0 && pageInfo.next == null)
                         {
                             Toast.makeText(MainActivity.this, "You reached the last character!", Toast.LENGTH_SHORT).show();
                         }
