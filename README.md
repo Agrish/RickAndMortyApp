@@ -2,7 +2,7 @@
 
 This repository contains Android card swipe application by using RickAndMortyAPI.
 
-![Screenshot](screenshot.png)
+<img src=screenshot.png width="220" height="360">
 
 ## Functionality
 
