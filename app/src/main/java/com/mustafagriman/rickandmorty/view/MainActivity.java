@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity
     public static final int MAX_SWIPE_VALUE = 120;
     CardView cv_cardView;
     TextView tv_characterName, tv_characterStatus, tv_lastKnownLocation;
-    ImageView iv_characterImage;
+    ImageView iv_characterImage, iv_statusImg;
 
     ArrayList<CharacterModel> characterModels;
     PageInformation pageInfo;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     Retrofit retrofit;
 
     int activePageIndex = 1;
+
+    float cardWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +58,18 @@ public class MainActivity extends AppCompatActivity
         tv_characterStatus = findViewById(R.id.characterStatus);
         tv_lastKnownLocation = findViewById(R.id.lastKnownLocation);
         iv_characterImage = findViewById(R.id.characterImage);
+        iv_statusImg = findViewById(R.id.statusImg);
 
         getDataFromAPI(activePageIndex);  // load the data for first page
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        float cardWidth = 260; //cv_cardView.getWidth();
+        cv_cardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                cv_cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                cardWidth = cv_cardView.getWidth(); //width is ready
+            }
+        });
         float cardStart = (displayMetrics.widthPixels / 2.0f);
 
         cv_cardView.setOnTouchListener(new View.OnTouchListener() {
@@ -91,6 +101,7 @@ public class MainActivity extends AppCompatActivity
                         {
                             tv_characterName.setText(characterModels.get(0).name);
                             tv_characterStatus.setText(characterModels.get(0).status);
+                            changeStatusIcon(characterModels.get(0).status);
                             tv_lastKnownLocation.setText(characterModels.get(0).lastKnownLocation.locationName);
                             Picasso.get().load(characterModels.get(0).imageUrl).into(iv_characterImage);
                         }
@@ -145,6 +156,7 @@ public class MainActivity extends AppCompatActivity
 
                     tv_characterName.setText(characterModels.get(0).name);
                     tv_characterStatus.setText(characterModels.get(0).status);
+                    changeStatusIcon(characterModels.get(0).status);
                     tv_lastKnownLocation.setText(characterModels.get(0).lastKnownLocation.locationName);
                     Picasso.get().load(characterModels.get(0).imageUrl).into(iv_characterImage);
                 }
@@ -161,5 +173,15 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "Please check the Internet connection!", Toast.LENGTH_LONG ).show();
             }
         });
+    }
+
+    public void changeStatusIcon(String status)
+    {
+        if(status.equals("Alive"))
+            iv_statusImg.setImageResource(R.drawable.status_green);
+        else if(status.equals("Dead"))
+            iv_statusImg.setImageResource(R.drawable.status_red);
+        else if(status.equals("unknown"))
+            iv_statusImg.setImageResource(R.drawable.status_gray);
     }
 }
